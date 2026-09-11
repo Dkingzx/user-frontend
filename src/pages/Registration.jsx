@@ -15,9 +15,39 @@ function Registration() {
   const [mobileNumber, setMobileNumber] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
   const [errors, setErrors] = useState({});
+const handleChange = (field, value) => {
+  let errorMessage = "";
 
+  if (field === "email") {
+    if (!value.trim()) {
+      errorMessage = "Email is required";
+    } else if (!value.includes("@")) {
+      errorMessage = "Enter a valid email";
+    }
+  }
+
+  if (field === "mobileNumber") {
+    if (!value.trim()) {
+      errorMessage = "Mobile number is required";
+    } else if (!/^\d{10}$/.test(value)) {
+      errorMessage = "Mobile number must be 10 digits";
+    }
+  }
+
+  if (field === "password") {
+    if (!value.trim()) {
+      errorMessage = "Password is required";
+    } else if (value.length < 6) {
+      errorMessage = "Password must be at least 6 characters";
+    }
+  }
+
+  setErrors({
+    ...errors,
+    [field]: errorMessage,
+  });
+};
   const handleSubmit = () => {
     const newErrors = {};
 
@@ -102,7 +132,8 @@ function Registration() {
             label="Email"
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {setEmail(e.target.value);
+                handleChange("email", e.target.value);}}
             fullWidth
             error={Boolean(errors.email)}
             helperText={errors.email}
@@ -111,7 +142,8 @@ function Registration() {
           <TextField
             label="Mobile Number"
             value={mobileNumber}
-            onChange={(e) => setMobileNumber(e.target.value)}
+            onChange={(e) => {setMobileNumber(e.target.value);
+                handleChange("mobileNumber", e.target.value);}}
             fullWidth
             error={Boolean(errors.mobileNumber)}
             helperText={errors.mobileNumber}
@@ -121,7 +153,25 @@ function Registration() {
             label="Password"
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+  const value = e.target.value;
+  setPassword(value);
+  handleChange("password", value);
+
+  if (confirmPassword && confirmPassword !== value) {
+    setErrors({
+      ...errors,
+      password: errors.password,
+      confirmPassword: "Passwords do not match",
+    });
+  } else if (confirmPassword === value) {
+    setErrors({
+      ...errors,
+      password: errors.password,
+      confirmPassword: "",
+    });
+  }
+}} 
             fullWidth
             error={Boolean(errors.password)}
             helperText={errors.password}
@@ -131,8 +181,26 @@ function Registration() {
             label="Confirm Password"
             type="password"
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            fullWidth
+            onChange={(e) => {const value =e.target.value;
+                setConfirmPassword(value);
+
+                if (!value.trim()) {
+                    setErrors ({
+                       ...errors,
+                        confirmPassword: "Confirm password is required",
+                    });
+                } else if ( password !== value) {
+                    setErrors({
+                        ...errors,
+                        confirmPassword: "Passwords do not match",
+                    });
+                } else {setErrors({
+                    ...errors,
+                    confirmPassword: "",
+                });
+                }}
+            }
+                fullWidth
             error={Boolean(errors.confirmPassword)}
             helperText={errors.confirmPassword}
           />
